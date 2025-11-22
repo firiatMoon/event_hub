@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: event-management
+
+springdoc:
+  swagger-ui:
+    url: /openapi.yaml
