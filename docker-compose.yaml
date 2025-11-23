@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+
+  location_db:
+    image: postgres:16-alpine
+    container_name: location_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME_LOCATION}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_LOCATION}
+      POSTGRES_DB: ${POSTGRES_DATABASE_LOCATION}
+    ports:
+      - ${POSTGRES_PORT_MAPPING_LOCATION}
+    volumes:
+      - db-location-service:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME_LOCATION} -d ${POSTGRES_DATABASE_LOCATION} -h 127.0.0.1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - appnet
+
+volumes:
+  db-location-service:
+
+networks:
+  appnet:
+    driver: bridge

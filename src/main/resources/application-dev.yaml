@@ -1,0 +1,13 @@
+#Database
+POSTGRES_SQL_USERNAME: location_service_admin
+POSTGRES_SQL_PASSWORD: location_service_password
+POSTGRES_SQL_HOST: 127.0.0.1
+POSTGRES_SQL_PORT: 5434
+POSTGRES_SQL_DB: location_service_db
+
+#Server
+SERVER_PORT: 8080
+ACTIVE_PROFILE: dev
+
+
+
