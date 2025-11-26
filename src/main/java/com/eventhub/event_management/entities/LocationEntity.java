@@ -9,12 +9,8 @@ import lombok.NoArgsConstructor;
 import java.util.Objects;
 
 @Entity
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "locations")
-public class Location {
+public class LocationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,6 +27,17 @@ public class Location {
     @Column(name = "description")
     private String description;
 
+    public LocationEntity() {
+    }
+
+    public LocationEntity(Long id, String name, String address, Integer capacity, String description) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.capacity = capacity;
+        this.description = description;
+    }
+
     @Override
     public String toString() {
         return String.format("Location{name=%s, address=%s, capacity=%s}", name, address, capacity);
@@ -40,10 +47,10 @@ public class Location {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        Location location = (Location) obj;
-        return Objects.equals(location.getName(), name) &&
-                Objects.equals(location.getAddress(), address) &&
-                capacity.compareTo(location.capacity) == 0;
+        LocationEntity locationEntity = (LocationEntity) obj;
+        return Objects.equals(locationEntity.getName(), name) &&
+                Objects.equals(locationEntity.getAddress(), address) &&
+                capacity.compareTo(locationEntity.capacity) == 0;
     }
 
     @Override
