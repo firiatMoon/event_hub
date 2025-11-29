@@ -4,8 +4,6 @@ import com.eventhub.event_management.entities.LocationEntity;
 import com.eventhub.event_management.repositories.LocationRepository;
 import com.eventhub.event_management.vo.Location;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,9 +19,8 @@ public class LocationService {
         this.locationEntityConverter = locationEntityConverter;
     }
 
-    public List<Location> getAllLocation(Pageable pageable) {
-        Page<LocationEntity> locationEntities = locationRepository.findAll(pageable);
-        return locationEntities.stream().map(locationEntityConverter::toLocation).toList();
+    public List<Location> getAllLocation() {
+        return locationRepository.findAll().stream().map(locationEntityConverter::toLocation).toList();
     }
 
     public Location createLocation(Location location) {

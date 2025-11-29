@@ -5,7 +5,6 @@ import com.eventhub.event_management.services.LocationDTOConverter;
 import com.eventhub.event_management.services.LocationService;
 import com.eventhub.event_management.vo.Location;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +24,8 @@ public class LocationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LocationDTO>> getLocations(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size
-    ){
-        List<Location> locations = locationService.getAllLocation(PageRequest.of(page, size));
-        List<LocationDTO> locationDTOS = locations.stream()
+    public ResponseEntity<List<LocationDTO>> getLocations(){
+        List<LocationDTO> locationDTOS = locationService.getAllLocation().stream()
                 .map(locationDTOConverter::toLocationDTO)
                 .toList();
         return ResponseEntity.
