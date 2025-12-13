@@ -1,0 +1,70 @@
+package com.eventhub.event_management.controllers;
+
+import com.eventhub.event_management.dto.*;
+import com.eventhub.event_management.security.jwt.JwtAuthenticationService;
+import com.eventhub.event_management.services.UserService;
+import com.eventhub.event_management.services.converter.UserDTOConverter;
+import com.eventhub.event_management.vo.User;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+@RequestMapping("/users")
+public class UserController {
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
+    private final UserService userService;
+
+    private final UserDTOConverter userDTOConverter;
+
+    private final JwtAuthenticationService jwtAuthenticationService;
+
+    public UserController(UserService userService,
+                          UserDTOConverter userDTOConverter, JwtAuthenticationService jwtAuthenticationService) {
+        this.userService = userService;
+        this.userDTOConverter = userDTOConverter;
+        this.jwtAuthenticationService = jwtAuthenticationService;
+    }
+
+    @Operation(summary = "Получение пользователя по id")
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+        User user = userService.getByUser(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userDTOConverter.toUserDTO(user));
+    }
+
+    @Operation(summary = "Регистрация пользователя")
+    @PostMapping
+    public ResponseEntity<UserDTO> registration( @RequestBody @Valid final SingUpRequest singUpRequest) {
+        log.info("Get request for sing-up user: {}", singUpRequest.login());
+        User user = userService.registrationUser(singUpRequest);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(userDTOConverter.toUserDTO(user));
+    }
+
+    @Operation(summary = "Авторизация пользователя")
+    @PostMapping("/auth")
+    public ResponseEntity<JwtTokenResponse> authenticate(@RequestBody @Valid SingInRequest signInRequest) {
+        log.info("Get request for sing-in user: {}", signInRequest.login());
+        JwtTokenResponse token = jwtAuthenticationService.authenticate(signInRequest);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(token);
+    }
+
+    @Operation(summary = "Refresh-токен")
+    @PostMapping("/refresh")
+    public JwtTokenResponse refresh(@RequestBody RefreshTokenDTO refreshTokenDto) {
+        return jwtAuthenticationService.refreshToken(refreshTokenDto);
+    }
+}

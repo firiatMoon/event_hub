@@ -1,6 +1,5 @@
-package com.eventhub.event_management.services;
+package com.eventhub.event_management.services.converter;
 
-import com.eventhub.event_management.dto.LocationDTO;
 import com.eventhub.event_management.entities.LocationEntity;
 import com.eventhub.event_management.vo.Location;
 import org.springframework.stereotype.Component;
