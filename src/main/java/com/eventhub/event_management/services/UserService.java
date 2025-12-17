@@ -29,6 +29,7 @@ public class UserService {
         if(userRepository.existsByLogin(singUpRequest.login())){
             throw new IllegalArgumentException("Username " + singUpRequest.login() + "already taken.");
         }
+
         UserEntity user = new UserEntity();
         user.setLogin(singUpRequest.login());
         user.setPassword(passwordEncoder.encode(singUpRequest.password()));
@@ -53,5 +54,9 @@ public class UserService {
 
     public boolean isUserExistsByLogin(String login) {
         return userRepository.existsByLogin(login);
+    }
+
+    public void saveUser(UserEntity userEntity) {
+        userRepository.save(userEntity);
     }
 }

@@ -2,13 +2,16 @@ package com.eventhub.event_management.controllers;
 
 import com.eventhub.event_management.AbstractTest;
 import com.eventhub.event_management.dto.LocationDTO;
+import com.eventhub.event_management.enums.Role;
 import com.eventhub.event_management.repositories.LocationRepository;
 import com.eventhub.event_management.services.LocationService;
 import com.eventhub.event_management.vo.Location;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -20,7 +23,7 @@ class LocationControllerTest extends AbstractTest {
     private LocationRepository locationRepository;
 
     @Test
-    void shouldSuccessCreateUser() throws Exception {
+    void shouldSuccessCreateLocation() throws Exception {
         LocationDTO location = new LocationDTO(
                 null,
                 "Game",
@@ -31,9 +34,11 @@ class LocationControllerTest extends AbstractTest {
 
         String locationJson = mapper.writeValueAsString(location);
 
-        String createdLocationJson = mockMvc.perform(post("/location")
+        String createdLocationJson = mockMvc.perform(post("/locations")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(locationJson))
+                        .content(locationJson)
+                        .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(Role.ADMIN))
+                )
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
@@ -58,8 +63,27 @@ class LocationControllerTest extends AbstractTest {
         location = locationService.createLocation(location);
         Assertions.assertNotNull(location.id());
 
-        mockMvc.perform(delete("/location/{id}", location.id()))
+        mockMvc.perform(delete("/locations/{id}", location.id())
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(Role.ADMIN)))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void shouldReturnForbiddenWhenUserTriedToDeleteLocation() throws Exception {
+        Location location = new Location(
+                null,
+                "Game",
+                "Kazan",
+                34,
+                null
+        );
+
+        location = locationService.createLocation(location);
+        Assertions.assertNotNull(location.id());
+
+        mockMvc.perform(delete("/locations/{id}", location.id())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(Role.USER)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -73,7 +97,8 @@ class LocationControllerTest extends AbstractTest {
         );
 
         location = locationService.createLocation(location);
-        String foundLocationJson = mockMvc.perform(get("/location/{id}", location.id()))
+        String foundLocationJson = mockMvc.perform(get("/locations/{id}", location.id())
+                        .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(Role.USER)))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -87,7 +112,8 @@ class LocationControllerTest extends AbstractTest {
 
     @Test
     void shouldReturnNotFoundLocation() throws Exception {
-        mockMvc.perform(get("/location/{id}", Long.MAX_VALUE))
+        mockMvc.perform(get("/locations/{id}", Long.MAX_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(Role.USER)))
                 .andExpect(status().isNotFound());
     }
 }

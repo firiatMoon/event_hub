@@ -2,7 +2,6 @@ package com.eventhub.event_management.security;
 
 import com.eventhub.event_management.entities.UserEntity;
 import com.eventhub.event_management.enums.Role;
-import com.eventhub.event_management.repositories.UserRepository;
 import com.eventhub.event_management.services.UserService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,12 +11,10 @@ import org.springframework.stereotype.Component;
 public class DefaultUserInitializer {
 
     private final UserService userService;
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public DefaultUserInitializer(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public DefaultUserInitializer(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
-        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -36,6 +33,6 @@ public class DefaultUserInitializer {
         createdUser.setPassword(passwordEncoder.encode(password));
         createdUser.setAge(21);
         createdUser.setRole(role);
-        userRepository.save(createdUser);
+        userService.saveUser(createdUser);
     }
 }
