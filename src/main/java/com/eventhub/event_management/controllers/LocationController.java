@@ -1,9 +1,10 @@
 package com.eventhub.event_management.controllers;
 
 import com.eventhub.event_management.dto.LocationDTO;
-import com.eventhub.event_management.services.LocationDTOConverter;
+import com.eventhub.event_management.services.converter.LocationDTOConverter;
 import com.eventhub.event_management.services.LocationService;
 import com.eventhub.event_management.vo.Location;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/location")
+@RequestMapping("/locations")
 public class LocationController {
 
     private final LocationService locationService;
@@ -23,6 +24,7 @@ public class LocationController {
         this.locationDTOConverter = locationDTOConverter;
     }
 
+    @Operation(summary = "Получение списка локаций")
     @GetMapping
     public ResponseEntity<List<LocationDTO>> getLocations(){
         List<LocationDTO> locationDTOS = locationService.getAllLocation().stream()
@@ -33,6 +35,7 @@ public class LocationController {
                 .body(locationDTOS);
     }
 
+    @Operation(summary = "Создание локации")
     @PostMapping()
     public ResponseEntity<LocationDTO> createLocation(@RequestBody @Valid LocationDTO locationDTO) {
         Location createdLocation = locationService.createLocation(locationDTOConverter.toLocation(locationDTO));
@@ -41,6 +44,7 @@ public class LocationController {
                 .body(locationDTOConverter.toLocationDTO(createdLocation));
     }
 
+    @Operation(summary = "Удаление локации по id")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLocation(@PathVariable("id") Long id) {
         locationService.deleteLocation(id);
@@ -49,6 +53,7 @@ public class LocationController {
                 .build();
     }
 
+    @Operation(summary = "Получение локации по id")
     @GetMapping("/{id}")
     public ResponseEntity<LocationDTO> getLocationById(@PathVariable("id") Long id) {
         Location location = locationService.getLocationById(id);
@@ -57,6 +62,7 @@ public class LocationController {
                 .body(locationDTOConverter.toLocationDTO(location));
     }
 
+    @Operation(summary = "Обновление локации")
     @PutMapping("/{id}")
     public ResponseEntity<LocationDTO> updateLocation(@PathVariable("id") Long id,
                                                          @RequestBody @Valid LocationDTO locationDTO) {
@@ -66,5 +72,4 @@ public class LocationController {
                 .status(HttpStatus.OK)
                 .body(locationDTOConverter.toLocationDTO(updatedLocation));
     }
-
 }

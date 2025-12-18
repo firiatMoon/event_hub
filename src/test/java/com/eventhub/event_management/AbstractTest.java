@@ -1,5 +1,6 @@
 package com.eventhub.event_management;
 
+import com.eventhub.event_management.enums.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,6 +18,11 @@ public class AbstractTest {
 
     @Autowired
     protected MockMvc mockMvc;
+    @Autowired
+    protected UserTestUtils userTestUtils;
+
+    private static final String BEARER_PREFIX = "Bearer ";
+
 
     protected final ObjectMapper mapper = new ObjectMapper();
 
@@ -43,6 +49,10 @@ public class AbstractTest {
     @EventListener
     public void closeContainer(ContextStoppedEvent event) {
         POSTGRESQL_CONTAINER.stop();
+    }
+
+    public String getAuthorizationHeader (Role role) {
+        return BEARER_PREFIX + userTestUtils.getJwtTokenWithRole(role);
     }
 
 }

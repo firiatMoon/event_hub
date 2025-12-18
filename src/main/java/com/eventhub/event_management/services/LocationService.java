@@ -2,6 +2,7 @@ package com.eventhub.event_management.services;
 
 import com.eventhub.event_management.entities.LocationEntity;
 import com.eventhub.event_management.repositories.LocationRepository;
+import com.eventhub.event_management.services.converter.LocationEntityConverter;
 import com.eventhub.event_management.vo.Location;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;

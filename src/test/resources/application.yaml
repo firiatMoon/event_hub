@@ -14,3 +14,7 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
+
+
+token:
+  jwt-token-key: "56AA7E229742D19319E7C97241AA5594FA2C3710C0EF7E80B2B122C33B8AFC13"
