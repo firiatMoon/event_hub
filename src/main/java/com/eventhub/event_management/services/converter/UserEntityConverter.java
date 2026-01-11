@@ -11,6 +11,7 @@ public class UserEntityConverter {
         return new User (
                userEntity.getId(),
                userEntity.getLogin(),
+               userEntity.getPassword(),
                userEntity.getAge(),
                userEntity.getRole()
         );

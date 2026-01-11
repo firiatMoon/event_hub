@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorMessageResponse> handleException(Exception ex) {
         ErrorMessageResponse error = new ErrorMessageResponse(
-                "Sever error",
+                "Server error",
                 ex.getMessage(),
                 LocalDateTime.now()
         );

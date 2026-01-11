@@ -77,6 +77,10 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.POST, "/locations").hasAnyAuthority("ADMIN");
                     auth.requestMatchers(HttpMethod.DELETE, "/locations/*").hasAnyAuthority("ADMIN");
                     auth.requestMatchers(HttpMethod.PUT, "/locations/*").hasAnyAuthority("ADMIN");
+                    auth.requestMatchers(HttpMethod.POST, "/events").hasAnyAuthority("USER");
+                    auth.requestMatchers(HttpMethod.GET, "/events/*").hasAnyAuthority("ADMIN", "USER");
+                    auth.requestMatchers(HttpMethod.GET, "/events/search").hasAnyAuthority("ADMIN", "USER");
+                    auth.requestMatchers(HttpMethod.POST, "/events/registrations/**").hasAnyAuthority("USER");
 
                     // Все остальные запросы требуют аутентификации
                     auth.anyRequest().authenticated();

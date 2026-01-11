@@ -3,6 +3,13 @@ package com.eventhub.event_management.entities;
 
 import com.eventhub.event_management.enums.Role;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 
 @Entity
@@ -52,10 +59,6 @@ public class UserEntity {
         this.login = login;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = password;
     }
@@ -74,5 +77,9 @@ public class UserEntity {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }
