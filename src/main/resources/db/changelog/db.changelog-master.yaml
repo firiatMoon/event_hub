@@ -1,3 +1,9 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/db.changelog-1.0.create_table.sql
+      file: db/changelog/db.changelog-1.0.create_table_locations.sql
+  - include:
+      file: db/changelog/db.changelog-2.0.create_table_users.sql
+  - include:
+     file: db/changelog/db.changelog-3.0.create_table_events.sql
+  - include:
+     file: db/changelog/db.changelog-4.0.create_table_registration_events.sql

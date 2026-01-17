@@ -5,7 +5,7 @@ import com.eventhub.event_management.vo.Location;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LocationDTOConverter {
+public class LocationDTOMapper {
 
     public LocationDTO toLocationDTO(Location location) {
         return new LocationDTO(

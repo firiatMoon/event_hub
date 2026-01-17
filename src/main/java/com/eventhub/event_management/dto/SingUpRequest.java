@@ -6,15 +6,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record SingUpRequest(
-        @NotBlank
+        @NotBlank(message = "The login is required. Enter please.")
         String login,
 
-        @NotBlank
+        @NotBlank(message = "The password is required. Enter please.")
         String password,
 
-        @Positive
-        @Min(18)
-        @NotNull
+        @Positive(message = "The value must be positive.")
+        @Min(value = 18, message = "Minimum age: 18.")
+        @NotNull(message = "The age is required. Please enter it.")
         Integer age
 ) {
 }

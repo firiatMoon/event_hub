@@ -5,7 +5,7 @@ import com.eventhub.event_management.vo.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserDTOConverter {
+public class UserDTOMapper {
 
     public UserDTO toUserDTO(User user) {
         return new UserDTO(

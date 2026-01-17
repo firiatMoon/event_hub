@@ -6,7 +6,7 @@ public record LocationDTO(
         @Null
         Long id,
 
-        @NotBlank
+        @NotBlank(message = "The name is required. Enter please.")
         String name,
 
         @NotBlank(message = "The address is required. Enter please.")

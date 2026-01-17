@@ -1,11 +1,12 @@
 package com.eventhub.event_management.services.converter;
 
+import com.eventhub.event_management.dto.LocationDTO;
 import com.eventhub.event_management.entities.LocationEntity;
 import com.eventhub.event_management.vo.Location;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LocationEntityConverter {
+public class LocationEntityMapper {
 
     public LocationEntity toLocationEntity(Location location) {
         return new LocationEntity(
@@ -27,5 +28,13 @@ public class LocationEntityConverter {
         );
     }
 
-
+    public LocationDTO toLocationDTO(LocationEntity locationEntity) {
+        return new LocationDTO(
+                locationEntity.getId(),
+                locationEntity.getName(),
+                locationEntity.getAddress(),
+                locationEntity.getCapacity(),
+                locationEntity.getDescription()
+        );
+    }
 }
