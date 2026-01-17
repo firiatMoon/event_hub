@@ -1,15 +1,11 @@
 package com.eventhub.event_management.services.converter;
 
 import com.eventhub.event_management.dto.EventDTO;
-import com.eventhub.event_management.enums.EventStatus;
 import com.eventhub.event_management.vo.Event;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 @Component
-public class EventDTOConverted {
+public class EventDTOMapper {
 
     public EventDTO toEventDTO (Event event){
         return new EventDTO(

@@ -15,28 +15,28 @@ public class EventEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = true)
     private String name;
 
-    @Column(name = "owner_id")
+    @Column(name = "owner_id", nullable = true)
     private Long ownerId;
 
     @Column(name = "occupied_places")
     private Integer occupiedPlaces;
 
-    @Column(name = "max_place")
+    @Column(name = "max_place", nullable = true)
     private Integer maxPlaces;
 
-    @Column(name = "date")
+    @Column(name = "date", nullable = true)
     private LocalDateTime date;
 
-    @Column(name = "cost")
+    @Column(name = "cost", nullable = true)
     private BigDecimal cost;
 
-    @Column(name = "duration")
+    @Column(name = "duration", nullable = true)
     private Integer duration;
 
-    @Column(name = "location_id")
+    @Column(name = "location_id", nullable = true)
     private Long locationId;
 
     @Column(name = "status")

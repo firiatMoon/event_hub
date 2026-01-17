@@ -1,6 +1,7 @@
 package com.eventhub.event_management.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Check;
 
 
 import java.util.Objects;
@@ -15,10 +16,11 @@ public class LocationEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "address")
+    @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "capacity")
+    @Column(name = "capacity", nullable = false)
+    @Check(constraints = "capacity >= 10")
     private Integer capacity;
 
     @Column(name = "description")

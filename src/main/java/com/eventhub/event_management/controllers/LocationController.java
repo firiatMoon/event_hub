@@ -1,9 +1,8 @@
 package com.eventhub.event_management.controllers;
 
 import com.eventhub.event_management.dto.LocationDTO;
-import com.eventhub.event_management.services.converter.LocationDTOConverter;
+import com.eventhub.event_management.services.converter.LocationDTOMapper;
 import com.eventhub.event_management.services.LocationService;
-import com.eventhub.event_management.vo.Location;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -17,31 +16,29 @@ import java.util.List;
 public class LocationController {
 
     private final LocationService locationService;
-    private final LocationDTOConverter locationDTOConverter;
+    private final LocationDTOMapper locationDTOMapper;
 
-    public LocationController(LocationService locationService, LocationDTOConverter locationDTOConverter) {
+    public LocationController(LocationService locationService, LocationDTOMapper locationDTOMapper) {
         this.locationService = locationService;
-        this.locationDTOConverter = locationDTOConverter;
+        this.locationDTOMapper = locationDTOMapper;
     }
 
     @Operation(summary = "Получение списка локаций")
     @GetMapping
     public ResponseEntity<List<LocationDTO>> getLocations(){
-        List<LocationDTO> locationDTOS = locationService.getAllLocation().stream()
-                .map(locationDTOConverter::toLocationDTO)
-                .toList();
+        List<LocationDTO> locations = locationService.getAllLocation();
         return ResponseEntity.
                 status(HttpStatus.OK)
-                .body(locationDTOS);
+                .body(locations);
     }
 
     @Operation(summary = "Создание локации")
     @PostMapping()
     public ResponseEntity<LocationDTO> createLocation(@RequestBody @Valid LocationDTO locationDTO) {
-        Location createdLocation = locationService.createLocation(locationDTOConverter.toLocation(locationDTO));
+        LocationDTO createdLocation = locationService.createLocation(locationDTOMapper.toLocation(locationDTO));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(locationDTOConverter.toLocationDTO(createdLocation));
+                .body(createdLocation);
     }
 
     @Operation(summary = "Удаление локации по id")
@@ -56,20 +53,20 @@ public class LocationController {
     @Operation(summary = "Получение локации по id")
     @GetMapping("/{id}")
     public ResponseEntity<LocationDTO> getLocationById(@PathVariable("id") Long id) {
-        Location location = locationService.getLocationById(id);
+        LocationDTO location = locationDTOMapper.toLocationDTO(locationService.getLocationById(id));
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(locationDTOConverter.toLocationDTO(location));
+                .body(location);
     }
 
     @Operation(summary = "Обновление локации")
     @PutMapping("/{id}")
     public ResponseEntity<LocationDTO> updateLocation(@PathVariable("id") Long id,
                                                          @RequestBody @Valid LocationDTO locationDTO) {
-       Location updatedLocation = locationService.updateLocation(id, locationDTOConverter.toLocation(locationDTO));
+       LocationDTO updatedLocation = locationService.updateLocation(id, locationDTOMapper.toLocation(locationDTO));
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(locationDTOConverter.toLocationDTO(updatedLocation));
+                .body(updatedLocation);
     }
 }

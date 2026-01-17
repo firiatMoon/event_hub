@@ -3,6 +3,8 @@ package com.eventhub.event_management.entities;
 
 import com.eventhub.event_management.enums.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import org.hibernate.annotations.Check;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +28,8 @@ public class UserEntity {
     private String password;
 
     @Column(name = "age")
+    @Check(constraints = "age >= 18")
+    @Min(value = 18)
     private Integer age;
 
     @Column(name = "role")

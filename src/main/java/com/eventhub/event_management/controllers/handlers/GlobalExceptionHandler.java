@@ -1,5 +1,6 @@
 package com.eventhub.event_management.controllers.handlers;
 
+import com.eventhub.event_management.exceptions.CustomBadRequestException;
 import com.eventhub.event_management.exceptions.ErrorMessageResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -65,5 +66,14 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+    @ExceptionHandler(CustomBadRequestException.class)
+    public ResponseEntity<ErrorMessageResponse> handlerBadRequestException(CustomBadRequestException ex) {
+        ErrorMessageResponse error = new ErrorMessageResponse(
+                "Bad Request.",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }

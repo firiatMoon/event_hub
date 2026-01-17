@@ -3,7 +3,7 @@ package com.eventhub.event_management.controllers;
 import com.eventhub.event_management.dto.*;
 import com.eventhub.event_management.security.jwt.JwtAuthenticationService;
 import com.eventhub.event_management.services.UserService;
-import com.eventhub.event_management.services.converter.UserDTOConverter;
+import com.eventhub.event_management.services.converter.UserDTOMapper;
 import com.eventhub.event_management.vo.User;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -22,14 +22,14 @@ public class UserController {
 
     private final UserService userService;
 
-    private final UserDTOConverter userDTOConverter;
+    private final UserDTOMapper userDTOMapper;
 
     private final JwtAuthenticationService jwtAuthenticationService;
 
     public UserController(UserService userService,
-                          UserDTOConverter userDTOConverter, JwtAuthenticationService jwtAuthenticationService) {
+                          UserDTOMapper userDTOMapper, JwtAuthenticationService jwtAuthenticationService) {
         this.userService = userService;
-        this.userDTOConverter = userDTOConverter;
+        this.userDTOMapper = userDTOMapper;
         this.jwtAuthenticationService = jwtAuthenticationService;
     }
 
@@ -39,7 +39,7 @@ public class UserController {
         User user = userService.getByUser(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userDTOConverter.toUserDTO(user));
+                .body(userDTOMapper.toUserDTO(user));
     }
 
     @Operation(summary = "Регистрация пользователя")
@@ -49,7 +49,7 @@ public class UserController {
         User user = userService.registrationUser(singUpRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(userDTOConverter.toUserDTO(user));
+                .body(userDTOMapper.toUserDTO(user));
     }
 
     @Operation(summary = "Авторизация пользователя")

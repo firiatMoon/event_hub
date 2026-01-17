@@ -2,6 +2,7 @@ package com.eventhub.event_management.dto;
 
 import com.eventhub.event_management.enums.EventStatus;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
@@ -11,30 +12,30 @@ public record EventSearchRequestDto(
 
         String name,
 
-        @Positive
+        @Positive(message = "The value must be positive.")
         Integer placesMin,
 
-        @Positive
+        @Positive(message = "The value must be positive.")
         Integer placesMax,
 
         LocalDateTime dateStartAfter,
 
         LocalDateTime dateStartBefore,
 
-        @Min(0)
+        @Min(value = 0, message = "Minimum cost: 0.")
         BigDecimal costMin,
 
-        @Min(0)
+        @Min(value = 0, message = "Maximum cost: 0.")
         BigDecimal costMax,
 
-        @Min(0)
+        @Min(value = 0, message = "Minimum duration: 0.")
         Integer durationMin,
 
-        @Min(0)
+        @Min(value = 0, message = "Maximum duration: 0.")
         Integer durationMax,
 
-        @Min(1)
-        Integer locationId,
+        @Min(value = 1, message = "Minimum value: 1.")
+        Long locationId,
 
         EventStatus eventStatus
 ) {

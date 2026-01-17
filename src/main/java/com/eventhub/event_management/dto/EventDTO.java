@@ -11,31 +11,29 @@ public record EventDTO(
         @Null
         Long id,
 
-        @NotBlank
+        @NotBlank(message = "The name of the event is required. Please enter it.")
         String name,
 
         @NotNull
         Long ownerId,
 
-        @NotNull
-        @Positive
-        Integer maxPlaces,
-
-        @NotNull
-        @Positive
         Integer occupiedPlaces,
 
-        @NotNull
+        @NotNull(message = "Please specify the maximum number of participants in the event.")
+        @Positive(message = "The value must be positive.")
+        Integer maxPlaces,
+
+        @NotNull(message = "The date of the event is required. Please enter it.")
         LocalDateTime date,
 
-        @Min(0)
-        @Positive
-        @NotNull
+        @Min(value = 0, message = "Minimum cost: 0.")
+        @Positive(message = "The value must be positive.")
+        @NotNull(message = "It is required to specify the cost of the event.  If the event is free, specify zero.")
         BigDecimal cost,
 
-        @Min(30)
-        @Positive
-        @NotNull
+        @Min(value = 30, message = "Minimum duration: 30.")
+        @Positive(message = "The value must be positive.")
+        @NotNull(message = "The duration of the event is required. Please enter it.")
         Integer duration,
 
         @NotNull

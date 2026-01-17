@@ -5,13 +5,12 @@ import com.eventhub.event_management.vo.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserEntityConverter {
+public class UserEntityMapper {
 
     public User toUser(UserEntity userEntity) {
         return new User (
                userEntity.getId(),
                userEntity.getLogin(),
-               userEntity.getPassword(),
                userEntity.getAge(),
                userEntity.getRole()
         );

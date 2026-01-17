@@ -5,13 +5,13 @@ import com.eventhub.event_management.dto.LocationDTO;
 import com.eventhub.event_management.enums.Role;
 import com.eventhub.event_management.repositories.LocationRepository;
 import com.eventhub.event_management.services.LocationService;
+import com.eventhub.event_management.services.converter.LocationDTOMapper;
 import com.eventhub.event_management.vo.Location;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,6 +21,8 @@ class LocationControllerTest extends AbstractTest {
     private LocationService locationService;
     @Autowired
     private LocationRepository locationRepository;
+    @Autowired
+    private LocationDTOMapper locationDTOMapper;
 
     @Test
     void shouldSuccessCreateLocation() throws Exception {
@@ -52,7 +54,7 @@ class LocationControllerTest extends AbstractTest {
 
     @Test
     void shouldDeleteLocation() throws Exception {
-        Location location = new Location(
+        LocationDTO locationDTO = new LocationDTO(
                 null,
                 "Game",
                 "Kazan",
@@ -60,17 +62,19 @@ class LocationControllerTest extends AbstractTest {
                 null
         );
 
-        location = locationService.createLocation(location);
-        Assertions.assertNotNull(location.id());
+        Location location = locationDTOMapper.toLocation(locationDTO);
 
-        mockMvc.perform(delete("/locations/{id}", location.id())
+        locationDTO = locationService.createLocation(location);
+        Assertions.assertNotNull(locationDTO.id());
+
+        mockMvc.perform(delete("/locations/{id}", locationDTO.id())
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(Role.ADMIN)))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void shouldReturnForbiddenWhenUserTriedToDeleteLocation() throws Exception {
-        Location location = new Location(
+        LocationDTO locationDTO = new LocationDTO(
                 null,
                 "Game",
                 "Kazan",
@@ -78,17 +82,19 @@ class LocationControllerTest extends AbstractTest {
                 null
         );
 
-        location = locationService.createLocation(location);
-        Assertions.assertNotNull(location.id());
+        Location location = locationDTOMapper.toLocation(locationDTO);
 
-        mockMvc.perform(delete("/locations/{id}", location.id())
+        locationDTO = locationService.createLocation(location);
+        Assertions.assertNotNull(locationDTO.id());
+
+        mockMvc.perform(delete("/locations/{id}", locationDTO.id())
                         .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(Role.USER)))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void shouldSuccessSearchUserById() throws Exception {
-        Location location = new Location(
+        LocationDTO locationDTO = new LocationDTO(
                 null,
                 "Game",
                 "Kazan",
@@ -96,8 +102,10 @@ class LocationControllerTest extends AbstractTest {
                 null
         );
 
-        location = locationService.createLocation(location);
-        String foundLocationJson = mockMvc.perform(get("/locations/{id}", location.id())
+        Location location = locationDTOMapper.toLocation(locationDTO);
+
+        locationDTO = locationService.createLocation(location);
+        String foundLocationJson = mockMvc.perform(get("/locations/{id}", locationDTO.id())
                         .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(Role.USER)))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -105,7 +113,7 @@ class LocationControllerTest extends AbstractTest {
                 .getContentAsString();
 
         Location foundLocation = mapper.readValue(foundLocationJson, Location.class);
-        org.assertj.core.api.Assertions.assertThat(location)
+        org.assertj.core.api.Assertions.assertThat(locationDTO)
                 .usingRecursiveComparison()
                 .isEqualTo(foundLocation);
     }
