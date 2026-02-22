@@ -1,0 +1,48 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  application:
+    name: telegram-bot-service
+  profiles:
+    active: ${ACTIVE_PROFILE:dev}
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_SQL_HOST}:${POSTGRES_SQL_PORT}/${POSTGRES_SQL_DB}
+    username: ${POSTGRES_SQL_USERNAME}
+    password: ${POSTGRES_SQL_PASSWORD}
+    driverClassName: org.postgresql.Driver
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.eventhub.*
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+kafka:
+  topics:
+    event-change: ${KAFKA_EVENT_CHANGE}
+
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN}
+
+services:
+  event-manager:
+    url: ${EVENT_MANAGER_URI}

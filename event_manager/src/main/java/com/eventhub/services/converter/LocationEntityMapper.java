@@ -1,0 +1,40 @@
+package com.eventhub.services.converter;
+
+import com.eventhub.dto.LocationDTO;
+import com.eventhub.entities.LocationEntity;
+import com.eventhub.model.Location;
+import org.springframework.stereotype.Component;
+
+@Component
+public class LocationEntityMapper {
+
+    public LocationEntity toLocationEntity(Location location) {
+        return new LocationEntity(
+                location.id(),
+                location.name(),
+                location.address(),
+                location.capacity(),
+                location.description()
+        );
+    }
+
+    public Location toLocation(LocationEntity locationEntity) {
+        return new Location(
+                locationEntity.getId(),
+                locationEntity.getName(),
+                locationEntity.getAddress(),
+                locationEntity.getCapacity(),
+                locationEntity.getDescription()
+        );
+    }
+
+    public LocationDTO toLocationDTO(LocationEntity locationEntity) {
+        return new LocationDTO(
+                locationEntity.getId(),
+                locationEntity.getName(),
+                locationEntity.getAddress(),
+                locationEntity.getCapacity(),
+                locationEntity.getDescription()
+        );
+    }
+}
