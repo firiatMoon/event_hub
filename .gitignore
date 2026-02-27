@@ -34,4 +34,8 @@ build/
 .vscode/
 .env
 **/src/main/resources/application-dev.yaml
-src/main/resources/application-dev.yaml
+event_manager/src/main/resources/application-dev.yaml
+event_notificator/src/main/resources/application-dev.yaml
+telegram_bot_service/src/main/resources/application-dev.yaml
+api_gateway/src/main/resources/application-dev.yaml
+eureka_server/src/main/resources/application-dev.yaml
