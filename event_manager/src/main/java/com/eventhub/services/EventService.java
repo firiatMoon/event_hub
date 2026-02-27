@@ -21,6 +21,7 @@ import com.eventhub.model.Location;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -55,16 +56,18 @@ public class EventService {
     private final EventEntityMapper eventEntityMapper;
     private final KafkaProducer kafkaProducer;
     private final UserRepository userRepository;
+    private final LocaleMessageService messageService;
 
     public EventService(EventRepository eventRepository, RegistrationEventRepository registrationEventRepository,
                         LocationService locationService, EventEntityMapper eventEntityMapper,
-                        KafkaProducer kafkaProducer, UserRepository userRepository) {
+                        KafkaProducer kafkaProducer, UserRepository userRepository, LocaleMessageService messageService) {
         this.eventRepository = eventRepository;
         this.registrationEventRepository = registrationEventRepository;
         this.locationService = locationService;
         this.eventEntityMapper = eventEntityMapper;
         this.kafkaProducer = kafkaProducer;
         this.userRepository = userRepository;
+        this.messageService = messageService;
     }
 
     @Transactional
@@ -76,7 +79,7 @@ public class EventService {
         Location location = locationService.getLocationById(eventRequestDto.locationId());
 
         if (eventRequestDto.maxPlaces().compareTo(location.capacity()) > 0) {
-            throw new IllegalArgumentException("The location cannot accommodate such a number of participants.");
+            throw new IllegalArgumentException(messageService.getMessage("err.event.location-capacity"));
         }
 
         EventEntity eventEntity = eventEntityMapper.toCreateEventEntityFromRequest(eventRequestDto,
@@ -91,7 +94,7 @@ public class EventService {
     public void deleteEvent(Long eventId) {
         if (!eventRepository.existsById(eventId)) {
             log.error("Event with id {} does not exist.", eventId);
-            throw new EntityNotFoundException("Event not found.");
+            throw new EntityNotFoundException(messageService.getMessage("err.event.not-found"));
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -101,15 +104,15 @@ public class EventService {
         Event event = getEventById(eventId);
 
         if (!isAdminOrOwner(currentUserId, role, event)) {
-            throw new IllegalArgumentException("There are no rights to cancel the event.");
+            throw new IllegalArgumentException(messageService.getMessage("err.event.not-right"));
         }
 
         if (Objects.equals(EventStatus.STARTED, event.status())) {
-            throw new CustomBadRequestException("The event cannot be deleted. Event has been started.");
+            throw new CustomBadRequestException(messageService.getMessage("err.event.not-delete"));
         }
 
         if (Objects.equals(EventStatus.FINISHED, event.status())) {
-            throw new CustomBadRequestException("The event cannot be deleted. Event has been finished.");
+            throw new CustomBadRequestException(messageService.getMessage("err.event.finished"));
         }
 
         if (Objects.equals(currentUserId, event.ownerId()) && Objects.equals(EventStatus.WAIT_START, event.status())) {
@@ -123,36 +126,37 @@ public class EventService {
     public EventDTO updateEvent(Long eventId, EventRequestDto eventRequestDto) {
         if (!eventRepository.existsById(eventId)) {
             log.error("Event with id {} does not exist.", eventId);
-            throw new EntityNotFoundException("Event not found.");
+            throw new EntityNotFoundException(messageService.getMessage("err.event.not-found"));
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long currentUserId = (Long) auth.getDetails();
         String role = auth.getAuthorities().iterator().next().getAuthority();
+        String currentLang = LocaleContextHolder.getLocale().getLanguage();
 
         EventEntity eventEntity = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Event not found."));
+                .orElseThrow(() -> new EntityNotFoundException(messageService.getMessage("err.event.not-found")));
 
         Location location = locationService.getLocationById(eventRequestDto.locationId());
 
         if (!isAdminOrOwner(currentUserId, role, eventEntityMapper.toEvent(eventEntity))) {
-            throw new IllegalArgumentException("There are no rights to cancel the event.");
+            throw new IllegalArgumentException(messageService.getMessage("err.event.not-right"));
         }
 
         if (Objects.equals(EventStatus.STARTED, eventEntityMapper.toEvent(eventEntity).status())) {
-            throw new CustomBadRequestException("The event cannot be updated. Event has been started.");
+            throw new CustomBadRequestException(messageService.getMessage("err.event.not-update"));
         }
 
         if (eventRequestDto.maxPlaces().compareTo(location.capacity()) > 0) {
-            throw new CustomBadRequestException("The location cannot accommodate such a number of participants.");
+            throw new CustomBadRequestException(messageService.getMessage("err.event.location-capacity"));
         }
 
         if (eventEntityMapper.toEvent(eventEntity).occupiedPlaces().compareTo(eventRequestDto.maxPlaces()) > 0) {
-            throw new CustomBadRequestException("More participants have already registered for the event.");
+            throw new CustomBadRequestException(messageService.getMessage("err.event.more-participants"));
         }
 
         EventChangeKafkaMessage message = createEventChangeKafkaMessage(currentUserId,
-                eventEntityMapper.toEvent(eventEntity), eventRequestDto);
+                eventEntityMapper.toEvent(eventEntity), eventRequestDto, currentLang);
 
         eventEntityMapper.updateEntityFromRequest(eventRequestDto, eventEntity);
         eventRepository.save(eventEntity);
@@ -166,7 +170,7 @@ public class EventService {
     public void registrationEvent(Long eventId) {
         if (!eventRepository.existsById(eventId)) {
             log.error("Event with id {} does not exist.", eventId);
-            throw new EntityNotFoundException("Event not found.");
+            throw new EntityNotFoundException(messageService.getMessage("err.event.not-found"));
         }
 
         Long currentUserId = (Long) SecurityContextHolder.getContext()
@@ -182,7 +186,7 @@ public class EventService {
                 .toList();
 
         if(!registrationForEvent.isEmpty()) {
-            throw new CustomBadRequestException("You are already registered for this event.");
+            throw new CustomBadRequestException(messageService.getMessage("err.event.already-registered"));
         }
 
         if (Objects.equals(EventStatus.WAIT_START, event.status()) &&
@@ -192,7 +196,7 @@ public class EventService {
             registrationEntity.setEvent(eventEntityMapper.toEventEntity(event));
             registrationEventRepository.save(registrationEntity);
         } else {
-            throw new IllegalArgumentException("The event cannot be registered.");
+            throw new IllegalArgumentException(messageService.getMessage("err.event.not-registered"));
         }
     }
 
@@ -219,7 +223,7 @@ public class EventService {
 
     public List<EventTelegramBotDTO> getEventsByUserId(Long userId, boolean onlyToday) {
         if (!userRepository.existsById(userId)) {
-            throw new UsernameNotFoundException("User not found with id: " + userId);
+            throw new UsernameNotFoundException(messageService.getMessage("err.event.not-found-user", userId));
         }
 
         List<RegistrationEntity> registrationEntities = registrationEventRepository.findAllByUserId(userId);
@@ -235,7 +239,7 @@ public class EventService {
                     if(!Objects.isNull(locationService.getLocationById(event.getId()))) {
                         location = locationService.getLocationById(event.getId()).name();
                     } else {
-                        throw new EntityNotFoundException("Location not found.");
+                        throw new EntityNotFoundException(messageService.getMessage("err.location.not-found"));
                     }
                     return eventEntityMapper.toEventTelegramBotDTO(event, location);
                 });
@@ -251,7 +255,7 @@ public class EventService {
     public void deleteRegistrationEvent(Long eventId) {
         if (!eventRepository.existsById(eventId)) {
             log.error("Event with id {} does not exist.", eventId);
-            throw new EntityNotFoundException("Event not found.");
+            throw new EntityNotFoundException(messageService.getMessage("err.event.not-found"));
         }
         Long currentUserId = (Long) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -266,10 +270,10 @@ public class EventService {
                     .filter(registrationEvent -> Objects.equals(registrationEvent.getEvent().getId(), event.id()))
                     .map(RegistrationEntity::getId)
                     .findFirst()
-                    .orElseThrow(() -> new EntityNotFoundException("Registration not found."));
+                    .orElseThrow(() -> new EntityNotFoundException(messageService.getMessage("err.registration.not-found")));
             registrationEventRepository.deleteById(registrationId);
         } else {
-            throw new IllegalArgumentException("The event cannot be deleted.");
+            throw new IllegalArgumentException(messageService.getMessage("err.event.cannot-delete"));
         }
     }
 
@@ -310,7 +314,8 @@ public class EventService {
 
     public Event getEventById(Long eventId) {
         EventEntity eventEntity = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("No event found with id: " + eventId));
+                .orElseThrow(() -> new EntityNotFoundException(messageService.getMessage(
+                        "err.event.not-found-by-id", eventId)));
         return eventEntityMapper.toEvent(eventEntity);
     }
 
@@ -323,12 +328,16 @@ public class EventService {
 
     private EventChangeKafkaMessage createEventChangeKafkaMessage(Long userID,
                                                                   Event event,
-                                                                  EventRequestDto eventRequestDto) {
+                                                                  EventRequestDto eventRequestDto,
+                                                                  String currentLang
+    ) {
         EventChangeKafkaMessage eventChangeKafkaMessage = new EventChangeKafkaMessage();
 
         eventChangeKafkaMessage.setEventId(event.id());
         eventChangeKafkaMessage.setIdUserChanged(!Objects.isNull(userID) ? userID : 0);
         eventChangeKafkaMessage.setOwnerId(event.ownerId());
+
+        eventChangeKafkaMessage.setLanguageCode(currentLang);
 
         List<Long> registrationUsers = registrationEventRepository.findUsersRegisteredForEvent(event.id());
 

@@ -14,12 +14,14 @@ public class TelegramCodeService {
 
     private final static Logger log = LoggerFactory.getLogger(TelegramCodeService.class);
     private final RedisRepository redisRepository;
+    private final LocaleMessageService messageService;
 
     @Value("${telegram.bot.name}")
     private String botName;
 
-    public TelegramCodeService(RedisRepository redisRepository) {
+    public TelegramCodeService(RedisRepository redisRepository, LocaleMessageService messageService) {
         this.redisRepository = redisRepository;
+        this.messageService = messageService;
     }
 
     public String generateTelegramCode(Long userId) {
@@ -30,7 +32,7 @@ public class TelegramCodeService {
         log.info("Binding code {} created for user {}", code, userId);
 
         String url = "https://t.me/" + botName;
-        return String.format("1. Open the bot using the link: %s%n2. Send him this verification code: %s",
+        return String.format(messageService.getMessage("info.telegram.bot-link"),
                 url, code
         );
     }

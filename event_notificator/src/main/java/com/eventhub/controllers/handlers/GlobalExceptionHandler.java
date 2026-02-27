@@ -3,10 +3,10 @@ package com.eventhub.controllers.handlers;
 
 import com.eventhub.exceptions.CustomBadRequestException;
 import com.eventhub.exceptions.ErrorMessageResponse;
+import com.eventhub.services.LocaleMessageService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,11 +18,17 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private final LocaleMessageService messageService;
+
+    public GlobalExceptionHandler(LocaleMessageService messageService) {
+        this.messageService = messageService;
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorMessageResponse> handleNotFoundException(EntityNotFoundException ex) {
 
         ErrorMessageResponse error = new ErrorMessageResponse(
-                "Entity not found.",
+                messageService.getMessage("{error.title.entity.not-found}"),
                 ex.getMessage(),
                 LocalDateTime.now()
         );
@@ -33,7 +39,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessageResponse> handleNoSuchElementException(NoSuchElementException ex) {
 
         ErrorMessageResponse error = new ErrorMessageResponse(
-                "Element not found.",
+                messageService.getMessage("error.title.element.not-found"),
                 ex.getMessage(),
                 LocalDateTime.now()
         );
@@ -49,7 +55,7 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getField() + " : " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
         ErrorMessageResponse error = new ErrorMessageResponse(
-                "Request validation error",
+                messageService.getMessage("{error.title.validation-error}"),
                 detailedMessage,
                 LocalDateTime.now()
         );
@@ -61,7 +67,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorMessageResponse> handleException(Exception ex) {
         ErrorMessageResponse error = new ErrorMessageResponse(
-                "Server error",
+                messageService.getMessage("{error.title.server-error}"),
                 ex.getMessage(),
                 LocalDateTime.now()
         );
@@ -70,21 +76,10 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ErrorMessageResponse> handleUserNotFoundException(UsernameNotFoundException ex) {
-
-        ErrorMessageResponse error = new ErrorMessageResponse(
-                "User not found.",
-                ex.getMessage(),
-                LocalDateTime.now()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-    }
-
     @ExceptionHandler(CustomBadRequestException.class)
     public ResponseEntity<ErrorMessageResponse> handlerBadRequestException(CustomBadRequestException ex) {
         ErrorMessageResponse error = new ErrorMessageResponse(
-                "Bad Request.",
+                messageService.getMessage("{error.title.bad-request}"),
                 ex.getMessage(),
                 LocalDateTime.now()
         );

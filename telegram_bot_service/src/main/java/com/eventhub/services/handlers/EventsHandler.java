@@ -1,7 +1,7 @@
 package com.eventhub.services.handlers;
 
-import com.eventhub.constants.TelegramBotConstant;
 import com.eventhub.dto.EventTelegramBotDTO;
+import com.eventhub.services.LocaleMessageService;
 import com.eventhub.services.MessageSender;
 import com.eventhub.services.TelegramBotService;
 import com.eventhub.services.clients.EventManagerClient;
@@ -20,26 +20,30 @@ public class EventsHandler implements CommandHandler{
     private final MessageSender messageSender;
     private final TelegramBotService telegramBotService;
     private final EventManagerClient eventManagerClient;
+    private final LocaleMessageService messageService;
 
-    public EventsHandler(MessageSender messageSender, TelegramBotService telegramBotService, EventManagerClient eventManagerClient) {
+    public EventsHandler(MessageSender messageSender, TelegramBotService telegramBotService,
+                         EventManagerClient eventManagerClient, LocaleMessageService messageService) {
         this.messageSender = messageSender;
         this.telegramBotService = telegramBotService;
         this.eventManagerClient = eventManagerClient;
+        this.messageService = messageService;
     }
 
     @Override
     public void handle(Update update) {
         Long chatId = update.getMessage().getChatId();
+        String lang = update.getMessage().getFrom().getLanguageCode();
 
         if(!telegramBotService.isChatLinked(chatId)) {
-            messageSender.sendMessage(chatId, TelegramBotConstant.AUTH_REQUIRED);
+            messageSender.sendMessage(chatId, messageService.getMessage("bot.auth-required", lang));
             return;
         }
 
         String text = update.getMessage().getText().trim();
         boolean onlyToday = Objects.equals("/today", text);
 
-        handleGetEvents(chatId, onlyToday);
+        handleGetEvents(chatId, onlyToday, lang);
     }
 
     @Override
@@ -51,28 +55,30 @@ public class EventsHandler implements CommandHandler{
         return false;
     }
 
-    private void handleGetEvents(Long chatId, boolean onlyToday) {
+    private void handleGetEvents(Long chatId, boolean onlyToday, String lang) {
         Long userId = telegramBotService.getUserIdByChatId(chatId);
 
         if (Objects.isNull(userId)) {
-            messageSender.sendMessage(chatId, TelegramBotConstant.AUTH_REQUIRED);
+            messageSender.sendMessage(chatId, messageService.getMessage("bot.auth-required", lang));
             return;
         }
 
         List<EventTelegramBotDTO> events = eventManagerClient.getEvents(userId, onlyToday);
-        sendFormattedList(chatId, events, onlyToday);
+        sendFormattedList(chatId, events, onlyToday, lang);
     }
 
-    private void sendFormattedList(Long chatId, List<EventTelegramBotDTO> events, boolean onlyToday) {
+    private void sendFormattedList(Long chatId, List<EventTelegramBotDTO> events, boolean onlyToday, String lang) {
         if (Objects.isNull(events) || events.isEmpty()) {
             messageSender.sendMessage(chatId, onlyToday
-                    ? TelegramBotConstant.NO_EVENTS_TODAY
-                    : TelegramBotConstant.NO_EVENTS);
+                    ? messageService.getMessage("bot.no-events-today", lang)
+                    : messageService.getMessage("bot.no-events", lang));
             return;
         }
 
         StringBuilder eventsInfo = new StringBuilder();
-        eventsInfo.append(onlyToday ? TelegramBotConstant.EVENTS_TITLE_TODAY : TelegramBotConstant.EVENTS_TITLE_ALL)
+        eventsInfo.append(onlyToday
+                        ?  messageService.getMessage("bot.events-title-today", lang)
+                        : messageService.getMessage("bot.events-title-all", lang))
                 .append("\n\n");
 
         for (EventTelegramBotDTO event : events) {

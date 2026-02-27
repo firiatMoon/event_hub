@@ -11,7 +11,7 @@ public record EventDTO(
         @Null
         Long id,
 
-        @NotBlank(message = "The name of the event is required. Please enter it.")
+        @NotBlank(message = "{validation.event.name.required}")
         String name,
 
         @NotNull
@@ -19,20 +19,20 @@ public record EventDTO(
 
         Integer occupiedPlaces,
 
-        @NotNull(message = "Please specify the maximum number of participants in the event.")
-        @Positive(message = "The value must be positive.")
+        @NotNull(message = "{validation.event.max.places}")
+        @Positive(message = "{validation.be.positive}")
         Integer maxPlaces,
 
-        @NotNull(message = "The date of the event is required. Please enter it.")
+        @NotNull(message = "{validation.event.date.required}")
         LocalDateTime date,
 
-        @Min(value = 0, message = "Minimum cost: 0.")
-        @NotNull(message = "It is required to specify the cost of the event.  If the event is free, specify zero.")
+        @Min(value = 0, message = "{validation.min.cost}")
+        @NotNull(message = "{validation.event.cost.required}")
         BigDecimal cost,
 
-        @Min(value = 30, message = "Minimum duration: 30.")
-        @Positive(message = "The value must be positive.")
-        @NotNull(message = "The duration of the event is required. Please enter it.")
+        @Min(value = 30, message = "{validation.min.duration}")
+        @Positive(message = "{validation.be.positive}")
+        @NotNull(message = "{validation.event.duration.required}")
         Integer duration,
 
         @NotNull

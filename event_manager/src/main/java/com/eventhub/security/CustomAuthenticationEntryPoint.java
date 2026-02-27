@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -22,17 +24,22 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     private static final Logger log = LoggerFactory.getLogger(CustomAuthenticationEntryPoint.class);
 
     private final ObjectMapper objectMapper;
+    private final MessageSource messageSource;
 
-    public CustomAuthenticationEntryPoint(ObjectMapper objectMapper) {
+    public CustomAuthenticationEntryPoint(ObjectMapper objectMapper, MessageSource messageSource) {
         this.objectMapper = objectMapper;
+        this.messageSource = messageSource;
     }
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         log.error("Handling authentication exception: ", authException);
+
+        Locale locale = request.getLocale();
+
         ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
-                "Failed to authenticate.",
-                authException.getMessage(),
+                messageSource.getMessage("error.title.unauthorized", null, locale),
+                messageSource.getMessage("error.detail.unauthorized", null, locale),
                 LocalDateTime.now()
         );
 

@@ -19,10 +19,12 @@ public class LocationService {
 
     private final LocationRepository locationRepository;
     private final LocationEntityMapper locationEntityMapper;
+    private final LocaleMessageService messageService;
 
-    public LocationService(LocationRepository locationRepository, LocationEntityMapper locationEntityMapper) {
+    public LocationService(LocationRepository locationRepository, LocationEntityMapper locationEntityMapper, LocaleMessageService messageService) {
         this.locationRepository = locationRepository;
         this.locationEntityMapper = locationEntityMapper;
+        this.messageService = messageService;
     }
 
     public List<LocationDTO> getAllLocation() {
@@ -43,21 +45,22 @@ public class LocationService {
     public void deleteLocation(Long id) {
         if(!locationRepository.existsById(id)) {
             log.error("The location with id {} does not exist", id);
-            throw new EntityNotFoundException("Location not found");
+            throw new EntityNotFoundException(messageService.getMessage("err.location.not-found"));
         }
         locationRepository.deleteById(id);
     }
 
     public Location getLocationById(Long id) {
         LocationEntity foundlocationEntity = locationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No location found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(messageService.getMessage(
+                        "err.location.not-found-by-id", id)));
         return locationEntityMapper.toLocation(foundlocationEntity);
     }
 
     public LocationDTO updateLocation(Long id, Location location) {
         if(!locationRepository.existsById(id)) {
             log.error("The location with id {} does not exist", id);
-            throw new EntityNotFoundException("No location found with id: " + id);
+            throw new EntityNotFoundException(messageService.getMessage("err.location.not-found-by-id", id));
         }
 
         LocationEntity updatedLocation = locationEntityMapper.toLocationEntity(location);

@@ -26,6 +26,8 @@ public class EventChangeKafkaMessage {
     private EventFieldChange<Long> locationId;
     private EventFieldChange<String> status;
 
+    private String languageCode;
+
     public EventChangeKafkaMessage() {
     }
 
@@ -33,7 +35,7 @@ public class EventChangeKafkaMessage {
                                    EventFieldChange<String> name, EventFieldChange<Integer> maxPlaces,
                                    EventFieldChange<LocalDateTime> date, EventFieldChange<BigDecimal> cost,
                                    EventFieldChange<Integer> duration, EventFieldChange<Long> locationId,
-                                   EventFieldChange<String> status) {
+                                   EventFieldChange<String> status, String languageCode) {
         this.eventId = eventId;
         this.idUserChanged = idUserChanged;
         this.ownerId = ownerId;
@@ -45,7 +47,9 @@ public class EventChangeKafkaMessage {
         this.duration = duration;
         this.locationId = locationId;
         this.status = status;
+        this.languageCode = languageCode;
     }
+
 
     public Long getEventId() {
         return eventId;
@@ -133,5 +137,13 @@ public class EventChangeKafkaMessage {
 
     public void setStatus(EventFieldChange<String> status) {
         this.status = status;
+    }
+
+    public String getLanguageCode() {
+        return languageCode;
+    }
+
+    public void setLanguageCode(String languageCode) {
+        this.languageCode = languageCode;
     }
 }

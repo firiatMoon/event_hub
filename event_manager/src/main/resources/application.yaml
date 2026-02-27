@@ -34,6 +34,10 @@ spring:
       host: ${REDIS_HOST}
       password: ${REDIS_PASSWORD}
       timeout: 60000
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
 
 eureka:
   client:

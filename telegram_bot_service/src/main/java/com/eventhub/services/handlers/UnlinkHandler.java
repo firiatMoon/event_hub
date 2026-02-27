@@ -1,6 +1,6 @@
 package com.eventhub.services.handlers;
 
-import com.eventhub.constants.TelegramBotConstant;
+import com.eventhub.services.LocaleMessageService;
 import com.eventhub.services.MessageSender;
 import com.eventhub.services.TelegramBotService;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,25 +15,29 @@ public class UnlinkHandler implements CommandHandler{
 
     private final TelegramBotService telegramBotService;
     private final MessageSender messageSender;
+    private final LocaleMessageService messageService;
 
-    public UnlinkHandler(TelegramBotService telegramBotService, MessageSender messageSender) {
+    public UnlinkHandler(TelegramBotService telegramBotService, MessageSender messageSender, LocaleMessageService messageService) {
         this.telegramBotService = telegramBotService;
         this.messageSender = messageSender;
+        this.messageService = messageService;
     }
 
     @Override
     public void handle(Update update) {
         Long chatId = update.getMessage().getChatId();
+        String lang = update.getMessage().getFrom().getLanguageCode();
+
         if (!telegramBotService.isChatLinked(chatId)) {
-            messageSender.sendMessage(chatId, TelegramBotConstant.AUTH_REQUIRED);
+            messageSender.sendMessage(chatId, messageService.getMessage("bot.auth-required", lang));
             return;
         }
         try {
             telegramBotService.deleteTelegramUser(chatId);
-            messageSender.sendMessage(chatId, TelegramBotConstant.DELETE_ACCOUNT);
+            messageSender.sendMessage(chatId, messageService.getMessage("bot.delete-account", lang));
         } catch (EntityNotFoundException ex) {
             log.warn("Attempt to delete a non-existent user: {}", chatId);
-            messageSender.sendMessage(chatId, TelegramBotConstant.NOT_FOUND_TELEGRAM_USER);
+            messageSender.sendMessage(chatId, messageService.getMessage("bot.not-found-telegram-user", lang));
         }
     }
 

@@ -1,7 +1,7 @@
 package com.eventhub.services.handlers;
 
-import com.eventhub.constants.TelegramBotConstant;
 import com.eventhub.enums.RegistrationResult;
+import com.eventhub.services.LocaleMessageService;
 import com.eventhub.services.MessageSender;
 import com.eventhub.services.TelegramBotService;
 import com.eventhub.services.clients.EventManagerClient;
@@ -17,20 +17,23 @@ public class VerificationHandler implements CommandHandler{
     private final MessageSender messageSender;
     private final TelegramBotService telegramBotService;
     private final EventManagerClient eventManagerClient;
+    private final LocaleMessageService messageService;
 
-    public VerificationHandler(MessageSender messageSender, TelegramBotService telegramBotService, EventManagerClient eventManagerClient) {
+    public VerificationHandler(MessageSender messageSender, TelegramBotService telegramBotService, EventManagerClient eventManagerClient, LocaleMessageService messageService) {
         this.messageSender = messageSender;
         this.telegramBotService = telegramBotService;
         this.eventManagerClient = eventManagerClient;
+        this.messageService = messageService;
     }
 
     @Override
     public void handle(Update update) {
         Long chatId = update.getMessage().getChatId();
         String code = update.getMessage().getText().trim();
+        String lang = update.getMessage().getFrom().getLanguageCode();
 
         if (telegramBotService.isChatLinked(chatId)) {
-            messageSender.sendMessage(chatId, TelegramBotConstant.WELCOME_RETURNING_USER);
+            messageSender.sendMessage(chatId, messageService.getMessage("bot.welcome-returning-user", lang));
             return;
         }
         Long userId = eventManagerClient.verifyCode(code);

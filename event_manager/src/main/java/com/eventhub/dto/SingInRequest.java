@@ -4,10 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 
 
 public record SingInRequest(
-        @NotBlank(message = "The login is required. Enter please.")
+        @NotBlank(message = "{validation.user.login.required}")
         String login,
 
-        @NotBlank(message = "The password is required. Enter please.")
+        @NotBlank(message = "{validation.user.password.required}")
         String password
 ) {
 }

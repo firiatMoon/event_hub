@@ -1,7 +1,6 @@
 package com.eventhub.services;
 
 
-import com.eventhub.constants.TelegramBotConstant;
 import com.eventhub.services.handlers.CommandHandler;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -25,11 +24,13 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
     private final TelegramClient telegramClient;
     private final MessageSender messageSender;
+    private final LocaleMessageService messageService;
 
-    public UpdateConsumer(List<CommandHandler> handlers, TelegramClient telegramClient, MessageSender messageSender) {
+    public UpdateConsumer(List<CommandHandler> handlers, TelegramClient telegramClient, MessageSender messageSender, LocaleMessageService messageService) {
         this.handlers = handlers;
         this.telegramClient = telegramClient;
         this.messageSender = messageSender;
+        this.messageService = messageService;
     }
 
     @PostConstruct
@@ -71,7 +72,8 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
     private void handleUnknownUpdate(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             Long chatId = update.getMessage().getChatId();
-            messageSender.sendMessage(chatId, TelegramBotConstant.INVALID_COMMAND);
+            String lang = update.getMessage().getFrom().getLanguageCode();
+            messageSender.sendMessage(chatId, messageService.getMessage("bot.invalid-command", lang));
         }
     }
 
@@ -80,13 +82,15 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
                 ? update.getCallbackQuery().getMessage().getChatId()
                 : update.getMessage().getChatId();
 
+        String lang = update.getMessage().getFrom().getLanguageCode();
+
         if (exception instanceof HttpClientErrorException.NotFound) {
-            messageSender.sendMessage(chatId, TelegramBotConstant.ERR_DATA_NOT_FOUND);
+            messageSender.sendMessage(chatId, messageService.getMessage("bot.err-data-not-found", lang));
         } else if (exception instanceof HttpClientErrorException.Unauthorized) {
-            messageSender.sendMessage(chatId, TelegramBotConstant.ERR_AUTH_FAILED);
+            messageSender.sendMessage(chatId, messageService.getMessage("bot.err-auth-failed", lang));
         } else {
             log.error("Unhandled bot exception for chatId {}", chatId, exception);
-            messageSender.sendMessage(chatId, TelegramBotConstant.ERR_UNEXPECTED_SERVER);
+            messageSender.sendMessage(chatId, messageService.getMessage("bot.err-unexpected-server", lang));
         }
     }
 }

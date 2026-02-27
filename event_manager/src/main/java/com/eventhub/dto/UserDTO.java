@@ -9,11 +9,11 @@ public record UserDTO(
         @Null
         Long id,
 
-        @NotBlank
+        @NotBlank(message = "{validation.user.login.required}")
         String login,
 
-        @Positive
-        @Min(18)
+        @Positive(message = "{validation.be.positive}")
+        @Min(value = 18, message = "{validation.user.age.min}")
         Integer age
 ) {
 }

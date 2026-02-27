@@ -6,15 +6,15 @@ public record LocationDTO(
         @Null
         Long id,
 
-        @NotBlank(message = "The name is required. Enter please.")
+        @NotBlank(message = "{validation.location.name.required}")
         String name,
 
-        @NotBlank(message = "The address is required. Enter please.")
+        @NotBlank(message = "{validation.location.address.required}")
         String address,
 
-        @NotNull(message = "The capacity is required. Enter please.")
-        @Min(value = 10, message = "Minimum seats: 10.")
-        @Positive(message = "The value must be positive.")
+        @NotNull(message = "{validation.location.capacity.required}")
+        @Min(value = 10, message = "{validation.min.seat}")
+        @Positive(message = "{validation.be.positive}")
         Integer capacity,
 
         @Null

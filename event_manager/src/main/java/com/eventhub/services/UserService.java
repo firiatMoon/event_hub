@@ -17,17 +17,19 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserEntityMapper userEntityMapper;
     private final PasswordEncoder passwordEncoder;
+    private final LocaleMessageService messageService;
 
     public UserService(UserRepository userRepository,
-                       UserEntityMapper userEntityMapper, PasswordEncoder passwordEncoder) {
+                       UserEntityMapper userEntityMapper, PasswordEncoder passwordEncoder, LocaleMessageService messageService) {
         this.userRepository = userRepository;
         this.userEntityMapper = userEntityMapper;
         this.passwordEncoder = passwordEncoder;
+        this.messageService = messageService;
     }
 
     public User registrationUser(SingUpRequest singUpRequest){
         if(userRepository.existsByLogin(singUpRequest.login())){
-            throw new IllegalArgumentException("Username " + singUpRequest.login() + "already taken.");
+            throw new IllegalArgumentException(messageService.getMessage("err.user.already-taken"));
         }
 
         UserEntity user = new UserEntity();
@@ -42,13 +44,13 @@ public class UserService {
 
     public User getByUser(Long userId) {
         UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+                .orElseThrow(() -> new EntityNotFoundException(messageService.getMessage("err.user.not-found")));
         return userEntityMapper.toUser(userEntity);
     }
 
     public User findByLogin(String login) {
         UserEntity user =  userRepository.findByLogin(login)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found."));
+                .orElseThrow(() -> new UsernameNotFoundException(messageService.getMessage("err.user.not-found")));
         return userEntityMapper.toUser(user);
     }
 

@@ -11,29 +11,29 @@ public record EventSearchRequestDto(
 
         String name,
 
-        @Positive(message = "The value must be positive.")
+        @Positive(message = "{validation.be.positive}")
         Integer placesMin,
 
-        @Positive(message = "The value must be positive.")
+        @Positive(message = "{validation.be.positive}")
         Integer placesMax,
 
         LocalDateTime dateStartAfter,
 
         LocalDateTime dateStartBefore,
 
-        @Min(value = 0, message = "Minimum cost: 0.")
+        @Min(value = 0, message = "{validation.min.cost}")
         BigDecimal costMin,
 
-        @Min(value = 0, message = "Maximum cost: 0.")
+        @Min(value = 0, message = "{validation.max.cost}")
         BigDecimal costMax,
 
-        @Min(value = 0, message = "Minimum duration: 0.")
+        @Min(value = 0, message = "{validation.min.duration}")
         Integer durationMin,
 
-        @Min(value = 0, message = "Maximum duration: 0.")
+        @Min(value = 0, message = "{validation.max.duration}")
         Integer durationMax,
 
-        @Min(value = 1, message = "Minimum value: 1.")
+        @Min(value = 1, message = "{validation.min.value}")
         Long locationId,
 
         EventStatus eventStatus

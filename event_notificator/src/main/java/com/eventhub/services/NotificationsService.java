@@ -2,12 +2,12 @@ package com.eventhub.services;
 
 import com.eventhub.dto.NotificationDTO;
 import com.eventhub.entities.NotificationEntity;
+import com.eventhub.exceptions.CustomBadRequestException;
 import com.eventhub.kafka.events.EventChangeKafkaMessage;
 import com.eventhub.repositories.NotificationRepository;
 import com.eventhub.services.converter.NotificationEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,11 +24,13 @@ public class NotificationsService {
 
     private final NotificationEntityMapper notificationEntityMapper;
     private final NotificationRepository notificationRepository;
+    private final LocaleMessageService messageService;
 
     public NotificationsService(NotificationEntityMapper notificationEntityMapper,
-                                NotificationRepository notificationRepository) {
+                                NotificationRepository notificationRepository, LocaleMessageService messageService) {
         this.notificationEntityMapper = notificationEntityMapper;
         this.notificationRepository = notificationRepository;
+        this.messageService = messageService;
     }
 
     @Transactional
@@ -37,7 +39,8 @@ public class NotificationsService {
 
         if (Objects.isNull(registrationUsers) || registrationUsers.isEmpty()) {
             log.info("No subscribers to notify for event {}", event.getEventId());
-            throw new NoSuchElementException("The list contains no elements.");
+            throw new NoSuchElementException(messageService.getMessage("err.notification.list-empty",
+                    event.getLanguageCode()));
         }
 
         NotificationEntity template = notificationEntityMapper.toCreateNotification(event);
@@ -51,14 +54,13 @@ public class NotificationsService {
                 })
                 .toList();
         notificationRepository.saveAll(notifications);
-
     }
 
     public List<NotificationDTO> findAllNotReadNotification() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (Objects.isNull(authentication) || Objects.isNull(authentication.getDetails())) {
-            throw new BadCredentialsException("The user is not authenticated.");
+            throw new CustomBadRequestException(messageService.getMessage("err.notification.user-not-authenticated"));
         }
 
         Long userId = (Long) authentication.getDetails();
@@ -76,7 +78,7 @@ public class NotificationsService {
         List<NotificationEntity> notificationEntities = notificationRepository.findAllById(notificationIds);
 
         if (notificationIds.isEmpty()) {
-            throw new NoSuchElementException("The list contains no elements.");
+            throw new NoSuchElementException(messageService.getMessage("err.notification.list-empty"));
         }
 
         for (NotificationEntity event : notificationEntities) {
