@@ -7,7 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.math.BigDecimal;
 
 public record EventRequestDto(
-        @NotBlank(message = "The field must contain a name.")
+        @NotBlank(message = "{validation.event.name}")
         String name,
 
         @Positive(message = "{validation.be.positive}")
